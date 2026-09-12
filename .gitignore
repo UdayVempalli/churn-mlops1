@@ -1,0 +1,14 @@
+# Data belongs in a datastore, never in Git
+data/raw/
+*.pkl
+model/
+outputs/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+# Notebooks
+.ipynb_checkpoints/
+# Secrets
+.env
