@@ -47,13 +47,13 @@ jobs:
 
       - name: Prepare data
         run: |
-          python src/prep.py \
+          python src/serve/prep.py \
             --input_data data/raw/Telco-Customer-Churn.csv \
             --output_data outputs/clean
 
       - name: Train model
         run: |
-          python src/train.py \
+          python src/serve/train.py \
             --training_data outputs/clean \
             --reg_rate 0.1 \
             --model_output outputs/model \
@@ -61,7 +61,7 @@ jobs:
 
       - name: Evaluate model
         run: |
-          python src/evaluate.py \
+          python src/serve/evaluate.py \
             --model_input outputs/model \
             --test_data outputs/test \
             --output_dir outputs/metrics
