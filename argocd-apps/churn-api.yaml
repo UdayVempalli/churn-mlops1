@@ -4,7 +4,7 @@ metadata:
   name: churn-api
   namespace: argocd
 spec:
-  project: default
+  project: dev-team
   source:
     repoURL: https://github.com/yourname/churn-mlops.git
     targetRevision: main
