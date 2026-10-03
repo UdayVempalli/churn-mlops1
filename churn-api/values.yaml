@@ -1,0 +1,21 @@
+replicaCount: 3
+image:
+  repository: churnmlopsdemo.azurecr.io/churn-api
+  tag: v1
+decisionThreshold: "0.3"
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
+ingress:
+  enabled: false
+extraEnv:
+  - name: LOG_LEVEL
+    value: "info"
+  - name: REGION
+    value: "eastus"
+redis:
+  enabled: false

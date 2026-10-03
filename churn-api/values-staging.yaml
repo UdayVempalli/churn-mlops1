@@ -1,0 +1,2 @@
+replicaCount: 2
+decisionThreshold: "0.5"
