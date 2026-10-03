@@ -1,0 +1,84 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: churn-api
+
+jobs:
+
+  # ------------------------------------------------------ CI --
+  test-and-build:
+    name: Test and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -v
+
+      - name: Download training data
+        env:
+          BASE: https://raw.githubusercontent.com/IBM
+          REPO: telco-customer-churn-on-icp4d/master/data
+        run: |
+          mkdir -p data/raw
+          curl -sSL \
+            -o data/raw/Telco-Customer-Churn.csv \
+            "$BASE/$REPO/Telco-Customer-Churn.csv"
+
+      - name: Prepare data
+        run: |
+          python src/serve/prep.py \
+            --input_data data/raw/Telco-Customer-Churn.csv \
+            --output_data outputs/clean
+
+      - name: Train model
+        run: |
+          python src/serve/train.py \
+            --training_data outputs/clean \
+            --reg_rate 0.1 \
+            --model_output outputs/model \
+            --test_data_output outputs/test
+
+      - name: Evaluate model
+        run: |
+          python src/serve/evaluate.py \
+            --model_input outputs/model \
+            --test_data outputs/test \
+            --output_dir outputs/metrics
+
+      - name: Show metrics
+        run: cat outputs/metrics/metrics.json
+
+      # The model trained above is uploaded once here, and downloaded
+      # by push-image below. Every job gets a fresh machine with nothing
+      # on it, so this is the only way to hand a file from one job to
+      # another without retraining it.
+      - name: Upload the trained model
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: outputs/model/model.pkl
+          retention-days: 7
+
+      - name: Build Docker image
+        run: docker build -t $IMAGE_NAME:ci .
