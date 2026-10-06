@@ -1,8 +1,18 @@
-replicaCount: 6
+replicaCount: 3
+
 image:
   repository: churnmlops13065.azurecr.io/churn-api
-  tag: v1
+  tag: ""
+  pullPolicy: IfNotPresent
+
 decisionThreshold: "0.3"
+
+extraEnv:
+  - name: LOG_LEVEL
+    value: "info"
+  - name: REGION
+    value: "eastus"
+
 resources:
   requests:
     cpu: "100m"
@@ -10,12 +20,6 @@ resources:
   limits:
     cpu: "250m"
     memory: "256Mi"
+
 ingress:
-  enabled: false
-extraEnv:
-  - name: LOG_LEVEL
-    value: "info"
-  - name: REGION
-    value: "eastus"
-redis:
   enabled: false

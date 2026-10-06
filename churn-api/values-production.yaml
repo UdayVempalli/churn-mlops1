@@ -1,5 +1,2 @@
-replicaCount: 2
-decisionThreshold: "0.5"
-
 image:
   tag: "cbf2760fce206b46b7c5634e7ae9534af21ae21d"
