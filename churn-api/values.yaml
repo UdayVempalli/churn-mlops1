@@ -1,6 +1,6 @@
 replicaCount: 6
 image:
-  repository: churnmlopsdemo.azurecr.io/churn-api
+  repository: churnmlops13065.azurecr.io/churn-api
   tag: v1
 decisionThreshold: "0.3"
 resources:

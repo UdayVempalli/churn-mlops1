@@ -7,6 +7,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Dockerfile"
+      - "requirements.txt"
+      - "pytest.ini"
+      - ".github/workflows/ci.yml"
+
 
 env:
   IMAGE_NAME: churn-api
@@ -16,7 +24,7 @@ jobs:
   # ------------------------------------------------------ CI --
   test-and-build:
     name: Test and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -82,3 +90,78 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME:ci .
+
+  # ------------------------------------------------------ CD --
+  push-image:
+    name: Push image to ACR
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download the trained model
+        uses: actions/download-artifact@v4
+        with:
+          name: trained-model
+          path: outputs/model
+
+      - name: Confirm the model arrived
+        run: ls -la outputs/model/model.pkl
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to the registry
+        run: az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build and push, tagged with the commit
+        run: |
+          REGISTRY=${{ vars.ACR_NAME }}.azurecr.io
+          docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
+          docker tag $REGISTRY/$IMAGE_NAME:${{ github.sha }} \
+            $REGISTRY/$IMAGE_NAME:latest
+          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          docker push $REGISTRY/$IMAGE_NAME:latest
+
+  # ------------------------------------- hand over to GitOps --
+  update-dev:
+    name: Point dev at the new image
+    needs: push-image
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    concurrency:
+      group: gitops-manifest-update
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set the new tag for dev
+        env:
+          TAG: ${{ github.sha }}
+        run: |
+          yq -i '.image.tag = strenv(TAG) | .image.tag style="double"' \
+            churn-api/values-dev.yaml
+          cat churn-api/values-dev.yaml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git add churn-api/values-dev.yaml
+          if git diff --cached --quiet; then
+            echo "dev already runs this tag"
+            exit 0
+          fi
+          git commit -m "ci: dev -> ${GITHUB_SHA::7} [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
