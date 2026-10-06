@@ -67,3 +67,4 @@ def predict(customer: Customer):
         probability=round(probability, 4),
         threshold=THRESHOLD,
     )
+# pipeline demo 1791303734
