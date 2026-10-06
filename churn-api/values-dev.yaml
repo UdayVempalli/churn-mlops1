@@ -1,3 +1,8 @@
 replicaCount: 2
 image:
   tag: "b1cf1fd5198ea9b30c972b40f6c170264d7a4aae"
+
+service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: churn-dev-29944

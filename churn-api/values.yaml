@@ -23,3 +23,7 @@ resources:
 
 ingress:
   enabled: false
+service:
+  type: ClusterIP
+  annotations: {}
+  loadBalancerSourceRanges: []
