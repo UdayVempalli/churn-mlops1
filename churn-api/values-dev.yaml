@@ -1,4 +1,3 @@
 replicaCount: 2
-
 image:
-  tag: "unset"
+  tag: "cbf2760fce206b46b7c5634e7ae9534af21ae21d"
