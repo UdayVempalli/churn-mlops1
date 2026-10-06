@@ -12,3 +12,5 @@ __pycache__/
 .ipynb_checkpoints/
 # Secrets
 .env
+*.tgz
+churn-api/charts/
