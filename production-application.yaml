@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: churn-api-production
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/UdayVempalli/churn-mlops1.git
+    targetRevision: main
+    path: churn-api
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-production.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: churn-production
+  # no syncPolicy.automated: a person clicks Sync
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

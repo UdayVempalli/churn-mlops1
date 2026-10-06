@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: churn-api-envs
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+            namespace: churn-dev
+          - env: staging
+            namespace: churn-staging
+  template:
+    metadata:
+      name: 'churn-api-{{env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/UdayVempalli/churn-mlops1.git
+        targetRevision: main
+        path: churn-api
+        helm:
+          valueFiles:
+            - values.yaml
+            - 'values-{{env}}.yaml'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
