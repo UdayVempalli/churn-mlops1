@@ -1,4 +1,4 @@
-(https://github.com/user-attachments/files/33449449/README.1.md)
+
 # Customer Churn Prediction — End-to-End MLOps Pipeline
 
 Predict whether a telecom customer is about to leave, and ship that prediction as a production-style API — trained, tested, containerised, and deployed to Kubernetes automatically on every push.
