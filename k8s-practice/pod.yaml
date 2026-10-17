@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: churn-api-pod
+  labels:
+    app: churn-api
+spec:
+  containers:
+    - name: churn-api
+      image: churn-api:v1
+      imagePullPolicy: Never
+      ports:
+        - containerPort: 8000

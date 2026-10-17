@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: churn-api-rs
+  labels:
+    app: churn-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: churn-api
+  template:
+    metadata:
+      labels:
+        app: churn-api
+    spec:
+      containers:
+        - name: churn-api
+          image: churnmlopsdemo.azurecr.io/churn-api:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000

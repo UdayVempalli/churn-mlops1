@@ -1,0 +1,13 @@
+releases:
+  - name: churn-api-dev
+    namespace: churn-dev
+    chart: ./churn-api
+    values:
+      - ./churn-api/values.yaml
+
+  - name: churn-api-staging
+    namespace: churn-staging
+    chart: ./churn-api
+    values:
+      - ./churn-api/values.yaml
+      - ./churn-api/values-staging.yaml

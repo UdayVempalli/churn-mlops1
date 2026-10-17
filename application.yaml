@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: churn-api
+  namespace: argocd
+spec:
+  project: dev-team
+  source:
+    repoURL: https://github.com/UdayVempalli/churn-mlops1.git
+    targetRevision: main
+    path: churn-api
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: churn-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
